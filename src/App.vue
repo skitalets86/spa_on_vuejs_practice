@@ -21,7 +21,9 @@
                     @click="drawer = !drawer"
                     class="hidden-md-and-up">
                 </v-app-bar-nav-icon>
-                <v-toolbar-title>Ad application</v-toolbar-title>
+                <v-toolbar-title>
+                    <router-link to="/" tag="span" class="pointer">Ad application</router-link>
+                </v-toolbar-title>
 
                 <div class="flex-grow-1"></div>
 
@@ -59,3 +61,7 @@ export default {
     }),
 };
 </script>
+<style lang="sass" scoped>
+    .pointer
+        cursor: pointer
+</style>
