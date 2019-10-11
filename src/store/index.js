@@ -1,13 +1,53 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import * as fb from 'firebase';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 // FIXME
 // declaration modules are here because I have an issue in build with an import store`s modules
 // Module parse failed: Unexpected token 
 // You may need an appropriate loader to handle this file type.
 // >import ads form './modules/ads'
+
+class User {
+    constructor(id) {
+        this.id = id;
+    }
+}
+
+const userModule = {
+    state: {
+        user: null
+    },
+    actions: {
+        async registerUser({commit}, {email, password}) {
+            commit('clearError');
+            commit('setLoading', true);
+
+            try {
+                const user = await fb.auth().createUserWithEmailAndPassword(email, password)
+                commit('setUser', new User(user.uid));
+                commit('setLoading', false);
+            } catch(error) {
+                commit('setLoading', false);
+                commit('setError', error.message);
+                throw error
+            }
+        }
+    },
+    mutations: {
+        setUser(state, payload) {
+            state.user = payload;
+        }
+    },
+    getters: {
+        user(state) {
+            return state.user;
+        }
+    }
+}
+
 
 const adsModule = {
     state: {
@@ -66,8 +106,49 @@ const adsModule = {
     }
 }
 
+
+const sharedModule = {
+    state: {
+        loading: false,
+        error: null
+    },
+    mutations: {
+        setLoading(state, payload) {
+            state.loading = payload;
+        },
+        setError(state, payload) {
+            state.error = payload;
+        },
+        clearError(state) {
+            state.error = null;
+        }
+    },
+    actions: {
+        setLoading({commit}, payload) {
+            commit('setLoading', payload);
+        },
+        setError({commit}, payload) {
+            commit('setError', payload);
+        },
+        clearError({commit}) {
+            commit('clearError');
+        }
+    },
+    getters: {
+        loading(state) {
+            return state.loading;
+        },
+        error(state) {
+            return state.error;
+        }
+    }
+}
+
+
 export default new Vuex.Store({
     modules: {
-        ads: adsModule
+        ads: adsModule,
+        user: userModule,
+        shared: sharedModule
     }
 })
