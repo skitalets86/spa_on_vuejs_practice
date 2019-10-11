@@ -75,10 +75,11 @@ export default {
                 const ad = {
                     title: this.title,
                     description: this.description,
-                    promo: this.promo
+                    promo: this.promo,
+                    imageSrc: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPOs4jT_cgp2si_Jeaz7glQ-l5zJ9PpjQSj4WjG3vMW-1jtCe3'
                 }
-                // eslint-disable-next-line
-                console.log(ad);
+                
+                this.$store.dispatch('createAd', ad)
             }
         }
     }
