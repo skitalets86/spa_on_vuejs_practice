@@ -86,39 +86,48 @@ class Ad {
 
 const adsModule = {
     state: {
-        ads: [
-            {
-                title: 'First',
-                description: 'Hello, I am description',
-                promo: false,
-                imageSrc: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',
-                id: '123'
-            },
-            {
-                title: 'Second',
-                description: 'Hello, I am description',
-                promo: true,
-                imageSrc: 'https://cdn.vuetifyjs.com/images/carousel/sky.jpg',
-                id: '1234'
-            },
-            {
-                title: 'Third',
-                description: 'Hello, I am description',
-                promo: true,
-                imageSrc: 'https://cdn.vuetifyjs.com/images/carousel/planet.jpg',
-                id: '12345'
-            }
-        ]
+        ads: []
     },
     mutations: {
         createAd(state, payload) {
             state.ads.push(payload);
+        },
+        loadAds(state, payload) {
+            state.ads = payload;
         }
     },
     actions: {
+        async fetchAds({commit}) {
+            commit('clearError');
+            commit('setLoading', true);
+
+            const resultAds = [];
+
+            try {
+                const fbVal = await fb.database().ref('ads').once('value');
+                const ads = fbVal.val();
+                Object.keys(ads).forEach(key => {
+                    const ad = ads[key];
+                    resultAds.push(
+                        new Ad(
+                            ad.title,
+                            ad.description,
+                            ad.ownerId,
+                            ad.imageSrc,
+                            ad.promo,
+                            key
+                        )
+                    );
+                })
+                commit('loadAds', resultAds);
+                commit('setLoading', false);
+            } catch(error) {
+                commit('setError', error.message);
+                commit('setLoading', false);
+                throw error;
+            }
+        },
         async createAd({commit, getters}, payload) {
-            // payload.id = Math.floor(Math.random()).toString();
-            // commit('createAd', payload);
             commit('clearError');
             commit('setLoading', true);
 
